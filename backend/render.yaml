@@ -1,0 +1,14 @@
+# Render Blueprint — one-click deployment.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: attendance-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: MONGO_URI
+        sync: false        # set this manually in the Render dashboard

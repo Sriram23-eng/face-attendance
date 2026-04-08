@@ -1,0 +1,15 @@
+[Unit]
+Description=Attendance Monitoring System
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/face attendance/hardware
+ExecStart=/usr/bin/python3 /home/pi/face attendance/hardware/main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
