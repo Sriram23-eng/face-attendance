@@ -64,6 +64,9 @@ def enroll_poll_loop():
                     state.enroll_slot = req["slot"]
                     state.enroll_finger = True
                     lcd.show("ENROLL MODE", f"Slot {req['slot']}")
+                elif req["type"] == "face":
+                    state.enroll_face = True
+                    lcd.show("ENROLL MODE", "Look at camera")
             print(f"[enroll] received {req}")
         time.sleep(1)
 
@@ -144,6 +147,7 @@ def finger_loop():
 
 
 def face_loop():
+    import base64, io
     try:
         face = FaceRecognizer()
     except Exception as e:
@@ -153,6 +157,29 @@ def face_loop():
     last_reload = time.time()
     while True:
         try:
+            with state.lock:
+                enrolling = state.enroll_face
+                eid = state.enroll_id
+
+            if enrolling:
+                # ENROLLMENT path — capture a frame and send back as base64 data URL
+                frame = face.capture_jpeg()  # returns JPEG bytes
+                if frame:
+                    b64 = base64.b64encode(frame).decode("ascii")
+                    data_url = f"data:image/jpeg;base64,{b64}"
+                    api.post_enroll_result(eid, data_url, ok=True)
+                    lcd.show("Face enrolled", "OK")
+                    leds.success()
+                else:
+                    api.post_enroll_result(eid, None, ok=False)
+                    fail("No face")
+                with state.lock:
+                    state.enroll_face = False
+                    state.enroll_id = None
+                lcd.show("Attendance Sys", "Ready...")
+                time.sleep(1)
+                continue
+
             uid = face.scan()
             if uid:
                 mark(uid, api.get_name(uid), "face")

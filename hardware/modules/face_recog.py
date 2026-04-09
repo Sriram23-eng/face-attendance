@@ -62,5 +62,15 @@ class FaceRecognizer:
                 return self.known_user_ids[best]
         return None
 
+    def capture_jpeg(self):
+        """Capture a frame, verify a face is present, return JPEG bytes (or None)."""
+        frame = self.cam.capture_array()
+        locs = face_recognition.face_locations(frame, model="hog")
+        if not locs:
+            return None
+        bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        ok, buf = cv2.imencode(".jpg", bgr)
+        return buf.tobytes() if ok else None
+
     def release(self):
         self.cam.stop()
