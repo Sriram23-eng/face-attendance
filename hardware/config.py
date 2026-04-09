@@ -2,7 +2,7 @@
 
 # ---- Backend (CLOUD URL — set to your Render URL after deployment) ----
 # Example:  https://attendx-backend.onrender.com
-BACKEND_URL = "https://YOUR-APP-NAME.onrender.com"
+BACKEND_URL = "https://face-attendance-chrs.onrender.com"
 DEVICE_ID   = "pi-node-01"
 API_KEY     = "change-me-shared-secret"     # not enforced server-side yet
 
