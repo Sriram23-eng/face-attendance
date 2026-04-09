@@ -9,8 +9,8 @@ let nextId = 1;
 
 router.post("/request", async (req, res) => {
   const { type } = req.body;
-  if (!["rfid", "finger"].includes(type))
-    return res.status(400).json({ error: "type must be rfid|finger" });
+  if (!["rfid", "finger", "face"].includes(type))
+    return res.status(400).json({ error: "type must be rfid|finger|face" });
 
   let slot = null;
   if (type === "finger") {

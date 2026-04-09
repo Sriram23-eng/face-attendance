@@ -4,14 +4,47 @@ const Attendance = require("../models/Attendance");
 router.post("/", async (req, res) => {
   try {
     const { userId, method, timestamp, deviceId } = req.body;
-    const rec = await Attendance.create({
-      userId, method, deviceId,
-      timestamp: timestamp ? new Date(timestamp) : new Date(),
+    const ts = timestamp ? new Date(timestamp) : new Date();
+
+    // Auto-toggle in/out: first scan today = in, anything after = out (latest wins)
+    const dayStart = new Date(ts); dayStart.setHours(0, 0, 0, 0);
+    const dayEnd   = new Date(ts); dayEnd.setHours(23, 59, 59, 999);
+    const todayCount = await Attendance.countDocuments({
+      userId, timestamp: { $gte: dayStart, $lte: dayEnd },
     });
+    const type = todayCount === 0 ? "in" : "out";
+
+    const rec = await Attendance.create({ userId, method, deviceId, timestamp: ts, type });
     res.status(201).json(rec);
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
+});
+
+// Working hours for a user on a given date (defaults to today)
+router.get("/hours/:userId", async (req, res) => {
+  const date = req.query.date ? new Date(req.query.date) : new Date();
+  const dayStart = new Date(date); dayStart.setHours(0, 0, 0, 0);
+  const dayEnd   = new Date(date); dayEnd.setHours(23, 59, 59, 999);
+
+  const rows = await Attendance.find({
+    userId: req.params.userId,
+    timestamp: { $gte: dayStart, $lte: dayEnd },
+  }).sort({ timestamp: 1 }).lean();
+
+  if (rows.length === 0) return res.json({ present: false, hours: 0, firstIn: null, lastOut: null });
+
+  const firstIn = rows[0].timestamp;
+  const lastOut = rows[rows.length - 1].timestamp;
+  const hours = rows.length > 1
+    ? (new Date(lastOut).getTime() - new Date(firstIn).getTime()) / 3600000
+    : 0;
+  res.json({
+    present: true,
+    firstIn, lastOut,
+    hours: Math.round(hours * 100) / 100,
+    scans: rows.length,
+  });
 });
 
 router.get("/", async (req, res) => {

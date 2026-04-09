@@ -32,20 +32,37 @@ router.post("/", async (req, res) => {
   try {
     const {
       name, employeeId, rfid, fingerId,
-      email, department, faceImageBase64,
+      email, department, faceImageBase64, faceImage,
     } = req.body;
 
+    const face = faceImageBase64 || faceImage;
     const u = await User.create({
       name, employeeId, rfid,
       fingerId: fingerId ? Number(fingerId) : undefined,
       email, department,
-      faceImage: faceImageBase64 || undefined,
-      hasFace:   !!faceImageBase64,
+      faceImage: face || undefined,
+      hasFace:   !!face,
     });
-    // never echo back the heavy field
     const obj = u.toObject();
     delete obj.faceImage;
     res.status(201).json(obj);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// Update existing user (used to attach RFID/finger after enrollment)
+router.put("/:id", async (req, res) => {
+  try {
+    const { rfid, fingerId, faceImageBase64, faceImage } = req.body;
+    const upd = {};
+    if (rfid !== undefined) upd.rfid = rfid;
+    if (fingerId !== undefined) upd.fingerId = Number(fingerId);
+    const face = faceImageBase64 || faceImage;
+    if (face) { upd.faceImage = face; upd.hasFace = true; }
+    const u = await User.findByIdAndUpdate(req.params.id, upd, { new: true }).lean();
+    if (u) delete u.faceImage;
+    res.json(u);
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
