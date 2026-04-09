@@ -1,7 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 
-const API = "http://localhost:5000/api";
+const API = "https://face-attendance-chrs.onrender.com/api";
+const HOST = "https://face-attendance-chrs.onrender.com";
 
 @Component({
   selector: "app-data-storage",
@@ -16,7 +17,7 @@ const API = "http://localhost:5000/api";
         <tr *ngFor="let u of users">
           <td>{{u.employeeId}}</td><td>{{u.name}}</td>
           <td>{{u.rfid || '-'}}</td><td>{{u.fingerId ?? '-'}}</td>
-          <td><img *ngIf="u.facePath" [src]="'http://localhost:5000/uploads/' + u.facePath" width="40"></td>
+          <td><img *ngIf="u.facePath" [src]="HOST + '/uploads/' + u.facePath" width="40"></td>
           <td><button (click)="remove(u._id)">Delete</button></td>
         </tr>
       </tbody>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 
-const API = "http://localhost:5000/api";
+const API = "https://face-attendance-chrs.onrender.com/api";
 
 @Component({
   selector: "app-data-logging",
