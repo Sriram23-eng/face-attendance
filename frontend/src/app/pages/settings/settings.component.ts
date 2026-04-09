@@ -6,18 +6,41 @@ const API = "https://face-attendance-chrs.onrender.com/api";
 @Component({
   selector: "app-settings",
   template: `
-    <h2>Section 4 — Date / Time / Schedule</h2>
-    <div *ngIf="s">
-      <label>Morning attendance start <input [(ngModel)]="s.morningStart"></label><br>
-      <label>Morning attendance end (cutoff) <input [(ngModel)]="s.morningEnd"></label><br>
-      <label>Return start <input [(ngModel)]="s.returnStart"></label><br>
-      <label>Return end <input [(ngModel)]="s.returnEnd"></label><br>
-      <p>Working days (0=Sun..6=Sat): {{s.workingDays.join(', ')}}</p>
-      <label>Holidays (comma-separated YYYY-MM-DD):
-        <input [ngModel]="s.holidays.join(',')" (ngModelChange)="s.holidays=$event.split(',')">
-      </label><br>
-      <button (click)="save()">Save</button>
-      <p *ngIf="msg">{{msg}}</p>
+    <div class="card">
+      <h2>Schedule & Settings</h2>
+      <div *ngIf="s">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label>Morning Start Time</label>
+            <input [(ngModel)]="s.morningStart" placeholder="08:00">
+          </div>
+          <div class="form-group">
+            <label>Morning Cutoff Time</label>
+            <input [(ngModel)]="s.morningEnd" placeholder="09:30">
+          </div>
+          <div class="form-group">
+            <label>Return Start Time</label>
+            <input [(ngModel)]="s.returnStart" placeholder="13:00">
+          </div>
+          <div class="form-group">
+            <label>Return End Time</label>
+            <input [(ngModel)]="s.returnEnd" placeholder="14:00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Working Days</label>
+          <p style="color:#4a5568;margin:0">{{s.workingDays.join(', ')}} <span style="color:#a0aec0">(0=Sun, 6=Sat)</span></p>
+        </div>
+
+        <div class="form-group">
+          <label>Holidays (comma-separated YYYY-MM-DD)</label>
+          <input [ngModel]="s.holidays.join(',')" (ngModelChange)="s.holidays=$event.split(',')">
+        </div>
+
+        <button (click)="save()">💾 Save Settings</button>
+        <div *ngIf="msg" class="alert success">{{msg}}</div>
+      </div>
     </div>
   `,
 })
@@ -27,6 +50,9 @@ export class SettingsComponent implements OnInit {
   constructor(private http: HttpClient) {}
   ngOnInit() { this.http.get(`${API}/settings`).subscribe((d) => (this.s = d)); }
   save() {
-    this.http.put(`${API}/settings`, this.s).subscribe(() => (this.msg = "Saved"));
+    this.http.put(`${API}/settings`, this.s).subscribe(() => {
+      this.msg = "✅ Settings saved";
+      setTimeout(() => (this.msg = ""), 3000);
+    });
   }
 }

@@ -3,14 +3,14 @@ import { Component } from "@angular/core";
 @Component({
   selector: "app-root",
   template: `
-    <nav style="display:flex;gap:1rem;padding:1rem;background:#222;color:#fff">
-      <strong>Attendance Monitoring</strong>
-      <a (click)="tab='new'"     [style.fontWeight]="tab==='new'?'bold':'normal'"     style="cursor:pointer">New User</a>
-      <a (click)="tab='store'"   [style.fontWeight]="tab==='store'?'bold':'normal'"   style="cursor:pointer">Data Storage</a>
-      <a (click)="tab='log'"     [style.fontWeight]="tab==='log'?'bold':'normal'"     style="cursor:pointer">Data Logging</a>
-      <a (click)="tab='settings'"[style.fontWeight]="tab==='settings'?'bold':'normal'"style="cursor:pointer">Settings</a>
+    <nav class="navbar">
+      <span class="brand">📸 Attendance System</span>
+      <a (click)="tab='new'"      [class.active]="tab==='new'">Register User</a>
+      <a (click)="tab='store'"    [class.active]="tab==='store'">Users</a>
+      <a (click)="tab='log'"      [class.active]="tab==='log'">Attendance Logs</a>
+      <a (click)="tab='settings'" [class.active]="tab==='settings'">Settings</a>
     </nav>
-    <main style="padding:1.5rem;font-family:sans-serif">
+    <main>
       <app-new-user      *ngIf="tab==='new'"></app-new-user>
       <app-data-storage  *ngIf="tab==='store'"></app-data-storage>
       <app-data-logging  *ngIf="tab==='log'"></app-data-logging>
